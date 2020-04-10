@@ -43,7 +43,7 @@ class TILT_OT_Stroke_Operator(bpy.types.Operator):
                 _edges.remove(e)
                 return d
 
-  def execute(self, context):
+    def execute(self, context):
         return self.invoke(context, None)    
 
     def invoke(self, context, event):
@@ -51,7 +51,7 @@ class TILT_OT_Stroke_Operator(bpy.types.Operator):
 
         # preserve order
         selected_bm_verts = []
-        if scene.stroke_list_index >= 0 and scene.stroke_list: 
+        if scene.selected_stroke_list_index >= 0 and scene.stroke_list: 
 
             obj = bpy.context.object
             selected_object = bpy.context.active_object  
@@ -76,7 +76,8 @@ class TILT_OT_Stroke_Operator(bpy.types.Operator):
             m = bpy.data.meshes.new(name='mesh container to hold control points')
             m.from_pydata(vertices=translated_verts, edges=[], faces=[])
 
-            selected_stroke = scene.stroke_list[scene.stroke_list_index]
+            print("TEST:", scene.selected_stroke_list_index)
+            selected_stroke = scene.stroke_list[scene.selected_stroke_list_index]
             selected_stroke.control_pt_mesh_ptr = m
 
             print(selected_stroke.control_pt_mesh_ptr.vertices)

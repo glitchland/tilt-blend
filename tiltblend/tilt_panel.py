@@ -70,7 +70,7 @@ class TILT_PT_Panel(Panel):
         #
         layout.label(text="Strokes:")
         row = layout.row()
-        row.template_list("TILT_STROKE_UL_List", "Stroke_List", scene, "stroke_list", scene, "stroke_list_index")
+        row.template_list("TILT_STROKE_UL_List", "Stroke_List", scene, "stroke_list", scene, "selected_stroke_list_index")
         row = layout.row()
         #row.operator('stroke_list.new_item', icon='ADD') # just add strokes with a button
         row.operator('stroke_list.delete_item', icon='REMOVE')
@@ -81,8 +81,8 @@ class TILT_PT_Panel(Panel):
         row.operator('stroke_list.new_item', text="Create Stroke From Selection")
 
         layout.label(text="Selected Stroke Properies:")
-        if scene.stroke_list_index >= 0 and scene.stroke_list: 
-            item = scene.stroke_list[scene.stroke_list_index]
+        if scene.selected_stroke_list_index >= 0 and scene.stroke_list: 
+            item = scene.stroke_list[scene.selected_stroke_list_index]
             row = layout.row()
             row.prop(item, "stroke_name")  # make this a one time setting
             row = layout.row()
@@ -161,7 +161,6 @@ class TILT_STROKE_LIST_OT_NewItem(Operator):
 
         obj = bpy.context.object
         if obj.mode != 'EDIT':
-            # XXX: Error dialog here
             msg = "Object is not in edit mode."
             bpy.ops.message.tiltmessagebox('INVOKE_DEFAULT', message = msg)
             return {'FINISHED'}
@@ -169,6 +168,7 @@ class TILT_STROKE_LIST_OT_NewItem(Operator):
         scene = context.scene
         scene.stroke_list.add() 
         new_stroke = scene.stroke_list[-1]
+        scene.selected_stroke_list_index = len(scene.stroke_list) - 1
         stroke_property_defaults = scene.stroke_property_defaults
         new_stroke.stroke_name = "Stroke " + str(scene.stroke_counter)
         new_stroke.brush_tuple = stroke_property_defaults.default_brush
@@ -189,9 +189,9 @@ class TILT_STROKE_LIST_OT_DeleteItem(Operator):
     
     def execute(self, context): 
         stroke_list = context.scene.stroke_list
-        index = context.scene.stroke_list_index
+        index = context.scene.selected_stroke_list_index
         stroke_list.remove(index)
-        context.scene.stroke_list_index = min(max(0, index - 1), len(stroke_list) - 1) 
+        context.scene.selected_stroke_list_index = min(max(0, index - 1), len(stroke_list) - 1) 
         return{'FINISHED'}
 
 class TILT_STROKE_LIST_OT_MoveItem(Operator):
@@ -206,14 +206,14 @@ class TILT_STROKE_LIST_OT_MoveItem(Operator):
     
     def move_index(self):
         """ Move index of an item render queue while clamping it. """
-        index = bpy.context.scene.stroke_list_index
+        index = bpy.context.scene.selected_stroke_list_index
         list_length = len(bpy.context.scene.stroke_list) - 1 # (index starts at 0)
         new_index = index + (-1 if self.direction == 'UP' else 1) 
-        bpy.context.scene.stroke_list_index = max(0, min(new_index, list_length))
+        bpy.context.scene.selected_stroke_list_index = max(0, min(new_index, list_length))
     
     def execute(self, context):
         stroke_list = context.scene.stroke_list
-        index = context.scene.stroke_list_index
+        index = context.scene.selected_stroke_list_index
         neighbor = index + (-1 if self.direction == 'UP' else 1)
         stroke_list.move(neighbor, index)
         self.move_index() 

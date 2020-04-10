@@ -46,13 +46,13 @@ def register():
     # attach these items to the scene, this means they can be referenced easily
     # from different operator classes without having to pass them around.
     bpy.types.Scene.stroke_list = CollectionProperty(type = StrokeListItem)
-    bpy.types.Scene.stroke_list_index = IntProperty(name = "Index for stroke_list", default = 0)   
+    bpy.types.Scene.selected_stroke_list_index = IntProperty(name = "Index for selected stroke_list", default = 0)   
     bpy.types.Scene.stroke_counter = IntProperty(name = "Counts the number of strokes in scene", default = 0)   
     bpy.types.Scene.stroke_property_defaults = PointerProperty(name = "Stroke Property Defaults", type = StrokePropertyDefaults)
 
 def unregister():
     del bpy.types.Scene.stroke_list
-    del bpy.types.Scene.stroke_list_index
+    del bpy.types.Scene.selected_stroke_list_index
     del bpy.types.Scene.stroke_counter    
     del bpy.types.Scene.stroke_property_defaults
     bpy.utils.unregister_class(StrokeListItem)

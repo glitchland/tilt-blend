@@ -7,25 +7,22 @@ import sys
 
 # Make the tiltbrush submodule accessible for code imports
 # copy into zip for release
-#lib_path = os.path.dirname(os.path.abspath(__file__))
-#sys.path.append(lib_path)
-
-lib_path = os.path.abspath(os.path.join(__file__, '..', 'tilt-brush-toolkit', 'Python'))
+lib_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(lib_path)
+
+#lib_path = os.path.abspath(os.path.join(__file__, '..', 'tilt-brush-toolkit', 'Python'))
+#sys.path.append(lib_path)
 
 #lib_path = os.path.abspath(os.path.join(__file__))
 #sys.path.append(lib_path)
 
-print (sys.path)
-
-#from tiltbrush.tilt import Tilt
-from tiltbrush.tilted import Sketch
-from tiltbrush.tilted import Stroke
-from tiltbrush.tilted import ControlPoint
-from tiltbrush.tilted import MetaDataFile
-from tiltbrush.tilted import TiltThumbnailPNG
-from tiltbrush.tilted import TiltHeader
-from tiltbrush.tilted import TiltArchive
+from tilted import Sketch
+from tilted import Stroke
+from tilted import ControlPoint
+from tilted import MetaDataFile
+from tilted import TiltThumbnailPNG
+from tilted import TiltHeader
+from tilted import TiltArchive
 
 # TODO: Preserve order of selected vertices
 
@@ -50,10 +47,8 @@ class TILT_OT_Sketch_Operator(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
 
-
         # pass the objects into the tiltarchive object, with checks on the handler methods
 
-    
         #
         # Make the directory to hold our tild data
         #
@@ -64,10 +59,7 @@ class TILT_OT_Sketch_Operator(bpy.types.Operator):
         #
         header = TiltHeader()
         hdr_data = header.getData()
-
         tilt_archive.write_header(hdr_data)
-        #with open("/tmp/header.bin","wb") as f:
-        #    f.write(hdr_data)
 
         #
         # Make the sketch.data
@@ -97,22 +89,16 @@ class TILT_OT_Sketch_Operator(bpy.types.Operator):
                 my_sketch.add_control_point_to_stroke(i, pos, rot, extensions)
                 time_counter += 1
 
-        #sketch_file = open("/tmp/data.sketch", "wb") #XXX allow user to control save location
-        # tilt_archive.add_sketch_data(sketch_data)
         sketch_bin_data = my_sketch.pack()
         sketch_file_array = bytearray(sketch_bin_data)
         tilt_archive.write_sketch(sketch_bin_data)
-        #sketch_file.write(sketch_file_array)
 
         #
         # Make the metadata JSON
         #
-        #metadata_file = open("/tmp/metadata.json", "w") #XXX allow user to control save location
-        #outfile = '' # XXX eventually write this from the object
         metadata = MetaDataFile()
         metadata_json = metadata.get_metadata_json()
         print("metadata_json:", metadata_json)
-        #metadata_file.write(metadata_json)
         tilt_archive.write_metadata(metadata_json)
 
         #
@@ -124,10 +110,7 @@ class TILT_OT_Sketch_Operator(bpy.types.Operator):
         b = [0,255,0]
         png_data = png.makeRGBPNG(r, g, b)
 
-        #with open("/tmp/thumbnail.png","wb") as f:
-        #    f.write(png_data)
         tilt_archive.write_thumbnail(png_data)
-        #tilt_archive.add_png()
 
         tilt_archive.finalize()
 
