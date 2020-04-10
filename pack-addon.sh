@@ -7,4 +7,5 @@ git submodule update --remote
 cp tilt-brush-toolkit/Python/tiltbrush/tilted.py tiltblend/
 
 # create the addon archive (its just a simple zip)
+rm tiltblend.zip 2>/dev/null
 zip -r tiltblend.zip tiltblend/
