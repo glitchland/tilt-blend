@@ -1,6 +1,9 @@
 # dependency tiltbrush files in the tiltblend folder
 tiltblend/tilted.py 
 
+# the packed addon, this should never be commited with the source 
+tiltblend.zip 
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
