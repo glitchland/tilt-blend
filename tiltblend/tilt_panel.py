@@ -103,7 +103,7 @@ class TILT_PT_Panel(Panel):
             row = layout.row()
             row.prop(item, "stroke_name")  # make this a one time setting
             row = layout.row()
-            row.prop(item, "brush_tuple")
+            row.prop(item, "brush_index")
             row = layout.row()
             row.prop(item, "brush_size")
             row = layout.row()
@@ -145,7 +145,7 @@ class StrokeListItem(PropertyGroup):
     """Group of properties representing an item in the list.""" 
 
     stroke_name = StringProperty(name="Name", description="A name for this stroke", default="Stroke") 
-    brush_tuple = bpy.props.EnumProperty(items=BRUSH_ITEMS, name = "Brush")
+    brush_index = bpy.props.EnumProperty(items=BRUSH_ITEMS, name = "Brush")
     brush_color = bpy.props.FloatVectorProperty(name='Colour', subtype='COLOR', default=(0.5,0.5,0.9))
     brush_size = bpy.props.FloatProperty(name="Brush Size", default=0.2)
 
@@ -188,9 +188,10 @@ class TILT_STROKE_LIST_OT_NewItem(Operator):
         scene.selected_stroke_list_index = len(scene.stroke_list) - 1
         stroke_property_defaults = scene.stroke_property_defaults
         new_stroke.stroke_name = "Stroke " + str(scene.stroke_counter)
-        new_stroke.brush_tuple = stroke_property_defaults.default_brush
+        new_stroke.brush_index = stroke_property_defaults.default_brush
         new_stroke.brush_color = stroke_property_defaults.default_brush_color
         new_stroke.brush_size = stroke_property_defaults.default_brush_size
+        #print(BRUSH_ITEMS[int(new_stroke.brush_tuple)])
         scene.stroke_counter += 1
         bpy.ops.view3d.add_stroke_control_points('EXEC_DEFAULT') # add the selected vertices
         return{'FINISHED'}

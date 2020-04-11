@@ -68,7 +68,7 @@ class TILT_OT_Sketch_Operator(bpy.types.Operator):
 
         # iterate over all of the strokes in the scene
         for i in range(len(scene.stroke_list)):
-            brush_index  = int(scene.stroke_list[i].brush_tuple[0])  # the index into guid arr
+            brush_index  = int(scene.stroke_list[i].brush_index)  # the index into guid arr
             r = scene.stroke_list[i].brush_color[0] 
             g = scene.stroke_list[i].brush_color[1] 
             b = scene.stroke_list[i].brush_color[2] 
