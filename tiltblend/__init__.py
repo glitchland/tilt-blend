@@ -23,9 +23,12 @@ bl_info = {
 }
 
 from . tilt_message_box_op import TILT_OT_MessageBox
-from . tilt_stroke_op import TILT_OT_Stroke_Operator
+from . tilt_stroke_op import TILT_OT_Control_Points_From_Mesh_Line_Start_Operator
+from . tilt_stroke_op import TILT_OT_Control_Points_From_Selected_Vertices_Operator
 from . tilt_sketch_op import TILT_OT_Sketch_Operator
-from . tilt_panel import TILT_PT_Panel, TILT_PT_StrokeDefaultPropertiesSubPanel, StrokeListItem, StrokePropertyDefaults, TILT_STROKE_LIST_OT_NewItem, TILT_STROKE_LIST_OT_DeleteItem, TILT_STROKE_LIST_OT_MoveItem, TILT_STROKE_UL_List
+from . tilt_panel import TILT_PT_Panel, TILT_PT_StrokeDefaultPropertiesSubPanel, StrokeListItem, StrokePropertyDefaults, TILT_STROKE_LIST_OT_DeleteItem, TILT_STROKE_LIST_OT_MoveItem, TILT_STROKE_UL_List
+from . tilt_panel import TILT_STROKE_LIST_OT_NewStrokeFromMeshLine
+from . tilt_panel import TILT_STROKE_LIST_OT_NewStrokeFromSelected
 
 import bpy 
 from bpy.props import CollectionProperty, IntProperty, PointerProperty, StringProperty 
@@ -36,9 +39,11 @@ def register():
     bpy.utils.register_class(TILT_PT_Panel)
     bpy.utils.register_class(TILT_PT_StrokeDefaultPropertiesSubPanel)
     bpy.utils.register_class(TILT_OT_Sketch_Operator) # creates sketch file
-    bpy.utils.register_class(TILT_OT_Stroke_Operator) # adds selected vertices to a stroke
+    bpy.utils.register_class(TILT_OT_Control_Points_From_Mesh_Line_Start_Operator)   # adds vertices from mesh line
+    bpy.utils.register_class(TILT_OT_Control_Points_From_Selected_Vertices_Operator) # adds selected vertices to a stroke
     bpy.utils.register_class(TILT_STROKE_UL_List)     # a UI list that contains our StrokeListItems
-    bpy.utils.register_class(TILT_STROKE_LIST_OT_NewItem)
+    bpy.utils.register_class(TILT_STROKE_LIST_OT_NewStrokeFromMeshLine)
+    bpy.utils.register_class(TILT_STROKE_LIST_OT_NewStrokeFromSelected)    
     bpy.utils.register_class(TILT_STROKE_LIST_OT_DeleteItem)
     bpy.utils.register_class(TILT_STROKE_LIST_OT_MoveItem)
     bpy.utils.register_class(TILT_OT_MessageBox)
@@ -60,9 +65,11 @@ def unregister():
     bpy.utils.unregister_class(TILT_PT_Panel)
     bpy.utils.unregister_class(TILT_PT_StrokeDefaultPropertiesSubPanel)    
     bpy.utils.unregister_class(TILT_OT_Sketch_Operator)
-    bpy.utils.unregister_class(TILT_OT_Stroke_Operator)   
+    bpy.utils.unregister_class(TILT_OT_Control_Points_From_Mesh_Line_Start_Operator)   # adds vertices from mesh line
+    bpy.utils.unregister_class(TILT_OT_Control_Points_From_Selected_Vertices_Operator) # adds selected vertices to a stroke
     bpy.utils.unregister_class(TILT_STROKE_UL_List)
-    bpy.utils.unregister_class(TILT_STROKE_LIST_OT_NewItem)
+    bpy.utils.unregister_class(TILT_STROKE_LIST_OT_NewStrokeFromMeshLine)
+    bpy.utils.unregister_class(TILT_STROKE_LIST_OT_NewStrokeFromSelected)    
     bpy.utils.unregister_class(TILT_STROKE_LIST_OT_DeleteItem)
     bpy.utils.unregister_class(TILT_STROKE_LIST_OT_MoveItem)
     bpy.utils.unregister_class(TILT_OT_MessageBox)

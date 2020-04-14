@@ -72,6 +72,37 @@ BRUSH_ITEMS = [
     ('66','Wire','')
 ]
 
+#
+# Shared Methods
+# 
+def _prepare_stroke(caller, context):
+    scene = context.scene
+    scene.stroke_list.add() 
+    new_stroke = scene.stroke_list[-1]
+    scene.selected_stroke_list_index = len(scene.stroke_list) - 1
+    stroke_property_defaults = scene.stroke_property_defaults
+    new_stroke.stroke_name = "Stroke " + str(scene.stroke_counter)
+    new_stroke.brush_index = stroke_property_defaults.default_brush
+    new_stroke.brush_color = stroke_property_defaults.default_brush_color
+    new_stroke.brush_size = stroke_property_defaults.default_brush_size
+    scene.stroke_counter += 1
+    return 
+
+def _is_valid(caller, context):
+    obj = bpy.context.object
+
+    if obj.mode != 'EDIT':
+        msg = "Object is not in edit mode."
+        bpy.ops.message.tiltmessagebox('INVOKE_DEFAULT', message = msg)
+        return False
+
+    if obj.type != 'MESH':
+        msg = "Only Meshes are supported at the moment. Try convert curve to mesh!"
+        bpy.ops.message.tiltmessagebox('INVOKE_DEFAULT', message = msg)
+        return False
+
+    return True
+
 class TILT_PT_Panel(Panel): 
     bl_idname = "TILT_PT_Panel"
     bl_label = "Tilt Tools Panel"
@@ -95,7 +126,10 @@ class TILT_PT_Panel(Panel):
         row.operator('stroke_list.move_item', icon='TRIA_DOWN').direction = 'DOWN'
 
         row = layout.row()
-        row.operator('stroke_list.new_item', text="Create Stroke From Selection")
+        row.operator('stroke_list.new_from_selected_vertices', text="Stroke From Selection")
+
+        row = layout.row()
+        row.operator('stroke_list.new_from_mesh_line', text="Stroke From Mesh Line")
 
         layout.label(text="Selected Stroke Properies:")
         if scene.selected_stroke_list_index >= 0 and scene.stroke_list: 
@@ -166,36 +200,33 @@ class TILT_STROKE_UL_List(UIList):
             layout.alignment = 'CENTER' 
             layout.label(text="", icon = custom_icon) 
 
-class TILT_STROKE_LIST_OT_NewItem(Operator): 
-    """Add a new item to the list.""" 
-    bl_idname = "stroke_list.new_item" 
+class TILT_STROKE_LIST_OT_NewStrokeFromMeshLine(Operator): 
+    """Add a new stroke to the list using the first vertice in a line.""" 
+    bl_idname = "stroke_list.new_from_mesh_line" 
+    bl_label = "" # Add a new stroke to the list 
+
+    def execute(self, context): 
+        _prepare_stroke(self, context)
+        bpy.ops.view3d.get_control_points_from_mesh_line('EXEC_DEFAULT') # add the selected vertices
+        return{'FINISHED'}
+
+
+class TILT_STROKE_LIST_OT_NewStrokeFromSelected(Operator): 
+    """Add a new stroke to the list from selected vertices""" 
+    bl_idname = "stroke_list.new_from_selected_vertices" 
     bl_label = "" # Add a new stroke to the list 
     
     #
     # Add the selected vertices here
     #
     def execute(self, context): 
+        if _is_valid(self, context) != True:
+            return{'FINISHED'}
 
-        obj = bpy.context.object
-        if obj.mode != 'EDIT':
-            msg = "Object is not in edit mode."
-            bpy.ops.message.tiltmessagebox('INVOKE_DEFAULT', message = msg)
-            return {'FINISHED'}
-
-        scene = context.scene
-        scene.stroke_list.add() 
-        new_stroke = scene.stroke_list[-1]
-        scene.selected_stroke_list_index = len(scene.stroke_list) - 1
-        stroke_property_defaults = scene.stroke_property_defaults
-        new_stroke.stroke_name = "Stroke " + str(scene.stroke_counter)
-        new_stroke.brush_index = stroke_property_defaults.default_brush
-        new_stroke.brush_color = stroke_property_defaults.default_brush_color
-        new_stroke.brush_size = stroke_property_defaults.default_brush_size
-        #print(BRUSH_ITEMS[int(new_stroke.brush_tuple)])
-        scene.stroke_counter += 1
-        bpy.ops.view3d.add_stroke_control_points('EXEC_DEFAULT') # add the selected vertices
+        _prepare_stroke(self, context)
+        bpy.ops.view3d.get_control_points_from_selected_vertices('EXEC_DEFAULT') # add the selected vertices
         return{'FINISHED'}
-
+        
 class TILT_STROKE_LIST_OT_DeleteItem(Operator): 
     """Delete the selected stroke item from the list."""
     bl_idname = "stroke_list.delete_item"
