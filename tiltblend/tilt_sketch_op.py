@@ -35,10 +35,12 @@ STROKE_EXT_SEED  = 'seed'
 STROKE_MASK = 11       # flags, scale, seed
 STROKE_FLAGS = 0
 STROKE_SCALE = 0.5
-STROKE_SEED = 859071859
 CONTROL_POINT_MASK = 3 # pressure, timestamp 
 CONTROL_POINT_PRESSURE = 1.0
 
+#
+# stroke random per stroke
+# constant per stroke (fx in sync)
 class TILT_OT_Sketch_Operator(bpy.types.Operator):
     bl_idname = "view3d.generate_sketch_file"
     bl_label = "Generate Sketch File"
@@ -75,7 +77,8 @@ class TILT_OT_Sketch_Operator(bpy.types.Operator):
             a = 1.0 # XXX allow user to configure alpha
             stroke_color = [r, g, b, a] # RGBA color, as 4 floats in the range [0, 1]
             stroke_size  = scene.stroke_list[i].brush_size # Brush size, in decimeters, as a float. (multiplied by scale)
-            stroke_extensions = [STROKE_FLAGS, STROKE_SCALE, STROKE_SEED]
+            stroke_seed  = scene.stroke_list[i].stroke_seed
+            stroke_extensions = [STROKE_FLAGS, STROKE_SCALE, stroke_seed]
             stroke = Stroke(brush_index, stroke_color, stroke_size, STROKE_MASK, CONTROL_POINT_MASK, stroke_extensions)
             my_sketch.add_stroke(stroke)
 

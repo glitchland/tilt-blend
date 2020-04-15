@@ -1,6 +1,7 @@
 import bpy
 from bpy.types import PropertyGroup, UIList, Operator, Panel 
 from bpy.props import StringProperty, PointerProperty 
+from random import randint
 
 BRUSH_ITEMS = [
     ('0','Bubbles',''),
@@ -75,6 +76,9 @@ BRUSH_ITEMS = [
 #
 # Shared Methods
 # 
+
+FIXED_STROKE_SEED = 100
+
 def _prepare_stroke(caller, context):
     scene = context.scene
     scene.stroke_list.add() 
@@ -85,8 +89,18 @@ def _prepare_stroke(caller, context):
     new_stroke.brush_index = stroke_property_defaults.default_brush
     new_stroke.brush_color = stroke_property_defaults.default_brush_color
     new_stroke.brush_size = stroke_property_defaults.default_brush_size
+    new_stroke.stroke_seed = _set_seed(stroke_property_defaults.use_random_seed)
     scene.stroke_counter += 1
     return 
+
+def _random_int(limit=2147483647):
+    return randint(0, limit)
+
+def _set_seed(is_random = True):
+    if is_random:
+        return _random_int()
+    else:
+        return FIXED_STROKE_SEED
 
 def _is_valid(caller, context):
     obj = bpy.context.object
@@ -106,7 +120,7 @@ def _is_valid(caller, context):
 class TILT_PT_Panel(Panel): 
     bl_idname = "TILT_PT_Panel"
     bl_label = "Tilt Tools Panel"
-    bl_category = "Tiltbrush Tools"
+    bl_category = "TILT.BLEND"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     
@@ -120,7 +134,6 @@ class TILT_PT_Panel(Panel):
         row = layout.row()
         row.template_list("TILT_STROKE_UL_List", "Stroke_List", scene, "stroke_list", scene, "selected_stroke_list_index")
         row = layout.row()
-        #row.operator('stroke_list.new_item', icon='ADD') # just add strokes with a button
         row.operator('stroke_list.delete_item', icon='REMOVE')
         row.operator('stroke_list.move_item', icon='TRIA_UP').direction = 'UP'
         row.operator('stroke_list.move_item', icon='TRIA_DOWN').direction = 'DOWN'
@@ -143,6 +156,7 @@ class TILT_PT_Panel(Panel):
             row = layout.row()
             row.prop(item, "brush_color")
             row = layout.row()
+            row.prop(item, "stroke_seed")
 
         row = layout.row()
         row.operator('view3d.generate_sketch_file', text="Generate Sketch File")
@@ -153,6 +167,7 @@ class TILT_PT_StrokeDefaultPropertiesSubPanel(bpy.types.Panel):
     bl_parent_id = 'TILT_PT_Panel'
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         layout = self.layout
@@ -168,12 +183,15 @@ class TILT_PT_StrokeDefaultPropertiesSubPanel(bpy.types.Panel):
         row.prop(stroke_property_defaults, "default_brush_size")
         row = layout.row()
         row.prop(stroke_property_defaults, "default_brush_color")
+        row = layout.row()
+        row.prop(stroke_property_defaults, "use_random_seed")        
 
 class StrokePropertyDefaults(PropertyGroup):
     """The properties used to control strokes in scene""" 
     default_brush = bpy.props.EnumProperty(items=BRUSH_ITEMS, name = "Default Brush")
     default_brush_color = bpy.props.FloatVectorProperty(name='Default Colour', subtype='COLOR', default=(0.5,0.5,0.9))
     default_brush_size = bpy.props.FloatProperty(name="Default Brush Size", default=0.2)
+    use_random_seed = bpy.props.BoolProperty(name="Random Seed", description="", default = True) 
 
 class StrokeListItem(PropertyGroup): 
     """Group of properties representing an item in the list.""" 
@@ -181,7 +199,8 @@ class StrokeListItem(PropertyGroup):
     stroke_name = StringProperty(name="Name", description="A name for this stroke", default="Stroke") 
     brush_index = bpy.props.EnumProperty(items=BRUSH_ITEMS, name = "Brush")
     brush_color = bpy.props.FloatVectorProperty(name='Colour', subtype='COLOR', default=(0.5,0.5,0.9))
-    brush_size = bpy.props.FloatProperty(name="Brush Size", default=0.2)
+    brush_size  = bpy.props.FloatProperty(name="Brush Size", default=0.2)
+    stroke_seed = bpy.props.IntProperty(name="Stroke Seed", default=0)
 
     # We use a mesh to store the vertices which represent control points. This is because 
     # this is the most optimal storage container for this use-case.
@@ -209,7 +228,6 @@ class TILT_STROKE_LIST_OT_NewStrokeFromMeshLine(Operator):
         _prepare_stroke(self, context)
         bpy.ops.view3d.get_control_points_from_mesh_line('EXEC_DEFAULT') # add the selected vertices
         return{'FINISHED'}
-
 
 class TILT_STROKE_LIST_OT_NewStrokeFromSelected(Operator): 
     """Add a new stroke to the list from selected vertices""" 

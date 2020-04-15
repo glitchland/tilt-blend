@@ -16,7 +16,7 @@ bl_info = {
     "author" : "glitch",
     "description" : "Blender Tiltbrush Tools",
     "blender" : (2, 80, 0),
-    "version" : (0, 0, 2),
+    "version" : (0, 0, 3),
     "location" : "View3D",
     "warning" : "",
     "category" : "Generic"

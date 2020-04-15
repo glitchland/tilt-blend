@@ -1,7 +1,6 @@
 import bpy 
 import numpy
 import bmesh
-
   
 # This operator adds vertices to a stroke using the start of a line.
 """
@@ -83,7 +82,7 @@ class TILT_OT_Control_Points_From_Mesh_Line_Start_Operator(bpy.types.Operator):
 
         selected_stroke = scene.stroke_list[scene.selected_stroke_list_index]
         selected_stroke.control_pt_mesh_ptr = m
-
+        
         print(line_vertices)
         return {'FINISHED'}
       
@@ -146,5 +145,5 @@ class TILT_OT_Control_Points_From_Selected_Vertices_Operator(bpy.types.Operator)
         selected_stroke.control_pt_mesh_ptr = m
 
         print(selected_stroke.control_pt_mesh_ptr.vertices)
-
+        
         return {'FINISHED'}
